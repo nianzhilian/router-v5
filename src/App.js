@@ -13,7 +13,7 @@ function A(props){
       页面a
       <button onClick={()=>{
         // 注：虽然地址有参数  但匹配规则是按照路径去匹配的 不包括hash 和 参数 也不包括前面的域名 协议等信息
-        props.history.replace('/b?name=1&age=2',{
+        props.history.replace('/b/2025/11/7',{
           name:'张三',
           age:25,
           desc:'排序'
@@ -23,14 +23,14 @@ function A(props){
   )
 }
 
-function B({history,location}){
-  const qsobj = qs.parse(location.search)
-  console.log(location)
+function B({history,location,match}){
+  console.log(match)
+  const {params} = match;
   return (
     <div>
       页面b
       <p>
-        接收到的信息name:{qsobj.name}--年龄：{qsobj.age}
+        接收到的信息:{params.year}年{params.month}月{params.day}日
       </p>
       <button onClick={()=>{
         history.replace('/a')
@@ -56,7 +56,8 @@ export default class App extends React.Component{
       <Router>
         <Switch>
           <Route path='/a' exact component={A}></Route>
-          <Route path='/b' exact component={B}></Route>
+          {/* 问号是可有可没有 */}
+          <Route path='/b/:year?/:month?/:day?' exact component={B}></Route>
           <Route component={Notfound}></Route>
         </Switch>
       </Router>
