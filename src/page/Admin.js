@@ -13,11 +13,13 @@ import CourseAdd from './course/CourseAdd'
 export default function(){
     return (
         <Layout header={<Header />} aside={<Menu />} >
+            <>
             <Route path="/" exact component={Home} />
             <Route path="/students" exact component={StudentList} />
             <Route path="/students/add" exact component={StudentAdd} />
             <Route path="/courses" exact component={CourseList} />
             <Route path="/course/add" exact component={CourseAdd} />
+            </>
         </Layout>
     )
 }
