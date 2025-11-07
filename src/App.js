@@ -4,7 +4,7 @@ import qs from "query-string";
 //只运行一次该模块不做任何的导入
 import './app.css'
 
-//路由跳转2  history.replace() 方法
+//路由匹配 match 对象
 
 function A(props){
   console.log(props.history.location == props.location)
@@ -13,7 +13,7 @@ function A(props){
       页面a
       <button onClick={()=>{
         // 注：虽然地址有参数  但匹配规则是按照路径去匹配的 不包括hash 和 参数 也不包括前面的域名 协议等信息
-        props.history.replace('/b?name=1&age=2',{
+        props.history.replace('/b?name=1&age=20#mark=lisi&desc=sort',{
           name:'张三',
           age:25,
           desc:'排序'
@@ -26,6 +26,8 @@ function A(props){
 function B({history,location}){
   const qsobj = qs.parse(location.search)
   console.log(location)
+  const hasObj = qs.parse(location.hash)
+  console.log(hasObj)
   return (
     <div>
       页面b
