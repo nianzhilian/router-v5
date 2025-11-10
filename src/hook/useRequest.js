@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback, use } from "react";
-import axios from "axios";
+import React, { useState, useEffect, useCallback } from "react";
+import service from "../utils/request";
 
 /**
  *
@@ -18,61 +18,61 @@ function useRequest({
   immediate = true,
 }) {
   const [loading, setLoading] = useState(false);
-  const [rdata,setRdata] = useState(null);
+  const [rdata, setRdata] = useState(null);
   const [error, setError] = useState(null);
-  const fetchData = useCallback(async (newOptions = {}) => {
+  const fetchData = useCallback(
+    async (newOptions = {}) => {
+      //只要在函数体中用到的参与数据流的都应该出现在依赖项列表中
 
-    //只要在函数体中用到的参与数据流的都应该出现在依赖项列表中
-
-    //新参数优先
-    const finalUrl = newOptions.url || url;
-    const finalMethod = newOptions.method || method;
-    //请求的参数 请求方法是get时  axios的配置是params post时 axios的配置是data
-    const finalData = newOptions.data || data;
-    const finalConfig = {...config,...newOptions.config}
-    //校验是否有url
-    if(!finalUrl){
-        setError('请求地址url不能为空')
+      //新参数优先
+      const finalUrl = newOptions.url || url;
+      const finalMethod = newOptions.method || method;
+      //请求的参数 请求方法是get时  axios的配置是params post时 axios的配置是data
+      const finalData = newOptions.data || data;
+      const finalConfig = { ...config, ...newOptions.config };
+      //校验是否有url
+      if (!finalUrl) {
+        setError("请求地址url不能为空");
         return;
-    }
-    try {
+      }
+      try {
         setLoading(true);
         //重置错误状态
-        setError(null)
+        setError(null);
         const requestConfig = {
-            url:finalUrl,
-            method:finalMethod,
-            ...finalConfig
-        }
+          url: finalUrl,
+          method: finalMethod,
+          ...finalConfig,
+        };
         //区分get请求和post请求
-        if(['GET'].includes(finalMethod.toUpperCase)){
-            requestConfig.params = finalData;
-        }else{
-            requestConfig.data = finalData
+        if (["GET"].includes(finalMethod.toUpperCase())) {
+          requestConfig.params = finalData;
+        } else {
+          requestConfig.data = finalData;
         }
-        const data = await axios(requestConfig)
-        console.log(data)
-    } catch (error) {
-        console.log(error)
-    }finally{
+        const rdata = await service(requestConfig);
+        setRdata(rdata.data);
+      } catch (error) {
+        console.log(error);
+      } finally {
         setLoading(false);
-    }
-  }, [url,method,data,config]);
+      }
+    },
+    [url, method, data, config]
+  );
   useEffect(() => {
     //默认只要调用此自定义hook就会请求接口
-    if(immediate){
-        fetchData();
+    if (immediate) {
+      fetchData();
     }
-    return () => {
-        
-    };
-  }, [fetchData,immediate]);
+    return () => {};
+  }, [fetchData, immediate]);
   return {
     loading,
     error,
     fetchData,
-    rdata
-  }
+    rdata,
+  };
 }
 
 export default useRequest;

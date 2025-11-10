@@ -23,8 +23,8 @@ export default class App extends React.Component{
       <Router>
         <Switch>
           <Route path='/login' exact component={Login}></Route>
-          <Route path='/' component={Admin}></Route>
-          {/* <Route component={Notfound} /> */}
+          <Route path='/'  component={Admin}></Route>
+          <Route component={Notfound} />
         </Switch>
       </Router>
     )

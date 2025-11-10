@@ -4,7 +4,7 @@ export default function(){
     return (
         <div className='header-div'>
             <div className='left'>
-                <h1>学生管理系统</h1>
+                {/* <h1>学生管理系统</h1> */}
             </div>
             <div className='right'>
                 <span>用户</span>

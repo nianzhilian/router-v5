@@ -1,5 +1,5 @@
 import React from 'react'
-import { BrowserRouter as Router, Route } from 'react-router-dom'
+import { BrowserRouter as Router, Route,Switch } from 'react-router-dom'
 import Layout from '../components/layout/Layout'
 import Header from '../components/Header'
 import Menu from '../components/Menu'
@@ -14,11 +14,13 @@ export default function(){
     return (
         <Layout header={<Header />} aside={<Menu />} >
             <>
-            <Route path="/" exact component={Home} />
-            <Route path="/students" exact component={StudentList} />
-            <Route path="/students/add" exact component={StudentAdd} />
-            <Route path="/courses" exact component={CourseList} />
-            <Route path="/course/add" exact component={CourseAdd} />
+            <Switch>
+                <Route path="/" exact component={Home} />
+                <Route path="/students" exact component={StudentList} />
+                <Route path="/students/add" exact component={StudentAdd} />
+                <Route path="/courses" exact component={CourseList} />
+                <Route path="/course/add" exact component={CourseAdd} />
+            </Switch>
             </>
         </Layout>
     )
