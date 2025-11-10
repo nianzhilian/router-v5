@@ -73,9 +73,7 @@ function getQuery(conf) {
     pageSize: 15,
     type: 4,
   };
-  const customCon = qs.parse(conf);
-  customCon.packType = +customCon.packType;
-  return { ...def, ...customCon };
+  return { ...def, ...conf };
 }
 
 class StuTable extends React.Component {
@@ -116,19 +114,23 @@ class StuTable extends React.Component {
 }
 
 export default function (props) {
-  const query = useMemo(() => {
-    const res = getQuery(props.location.search);
-    return res;
-  }, [props.location.search]);
+  // const query = useMemo(() => {
+  //   const res = getQuery(props.location.search);
+  //   return res;
+  // }, [props.location.search]);
+  const [params,setParams] = useState(getQuery({packType:1}))
   const queryConfig = useMemo(
-    () => ({
-      url: "/api/log/findLogList",
-      method: "POST",
-      data: query,
-      config: {},
-      immediate: true, // 首次渲染自动请求
-    }),
-    [query]
+    () => {
+      console.log('有变化会重新计算值')
+      return {
+        url: "/api/log/findLogList",
+        method: "POST",
+        data: params,
+        config: {},
+        immediate: true, // 首次渲染自动请求
+      }
+    },
+    [params]
   );
   const { fetchData, loading, rdata, error } = useRequest(queryConfig);
 
@@ -136,17 +138,18 @@ export default function (props) {
     <div>
       <SearchForm
         defaultValue={{
-          packType: query.packType,
+          packType: params.packType,
         }}
         onSearch={(conf) => {
           const newConfig = {
-            ...query,
+            ...params,
             ...conf,
             current:1
           }
-          const locationPath = qs.stringify(conf);
-          //改变地址
-          props.history.push('?'+locationPath)
+          setParams(newConfig);
+          // const locationPath = qs.stringify(conf);
+          // //改变地址
+          // props.history.push('?'+locationPath)
         }}
       />
       {loading && <div>正在加载</div>}
