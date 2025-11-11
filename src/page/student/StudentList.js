@@ -74,7 +74,11 @@ function getQuery(conf) {
     pageSize: 15,
     type: 4,
   };
-  return { ...def, ...conf };
+  const config = { ...def, ...conf };
+  if(config.packType == -1){
+    delete config.packType;
+  }
+  return config;
 }
 
 class StuTable extends React.Component {
@@ -120,7 +124,7 @@ export default function (props) {
   //   return res;
   // }, [props.location.search]);
   //只在首次渲染的时候初始化状态一次  后续渲染不会执行
-  const [params,setParams] = useState(()=>getQuery({packType:1}))
+  const [params,setParams] = useState(()=>getQuery({packType:-1}))
 
   const queryConfig = useMemo(
     () => {
@@ -144,13 +148,16 @@ export default function (props) {
     <div>
       <SearchForm
         defaultValue={{
-          packType: params.packType,
+          packType: params?.packType ?? -1,
         }}
         onSearch={(conf) => {
           const newConfig = {
             ...params,
             ...conf,
             current:1
+          }
+          if(newConfig.packType == -1){
+            delete newConfig.packType
           }
           setParams(newConfig);
           fetchData({data:newConfig})
@@ -164,11 +171,16 @@ export default function (props) {
       <StuTable lists={rdata?.dataMain?.list ?? []} />
       <Pager 
       current={params.current}
-      pageSize={params.current}
-      panelNumber={5}
-      total={rdata?.dataMain?.pagination?.total}
-      onPageChange={()=>{
-
+      pageSize={params.pageSize}
+      panelNumber={15}
+      total={rdata?.dataMain?.pagination?.total ?? 0}
+      onPageChange={(page)=>{
+        const newConf = {
+          ...params,
+          current:page
+        }
+        setParams(newConf);
+        fetchData({data:newConf})
       }}
       />
     </div>
