@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import qs from "query-string";
 import useRequest from "../../hook/useRequest";
+import Pager from "../../components/Pager";
 //只运行一次该模块不做任何的导入
 import './index.css'
 class SearchForm extends React.Component {
@@ -118,22 +119,27 @@ export default function (props) {
   //   const res = getQuery(props.location.search);
   //   return res;
   // }, [props.location.search]);
-  const [params,setParams] = useState(getQuery({packType:1}))
+  //只在首次渲染的时候初始化状态一次  后续渲染不会执行
+  const [params,setParams] = useState(()=>getQuery({packType:1}))
+
   const queryConfig = useMemo(
     () => {
       console.log('有变化会重新计算值')
       return {
         url: "/api/log/findLogList",
         method: "POST",
-        data: params,
+        data: {},
         config: {},
-        immediate: true, // 首次渲染自动请求
+        immediate: false, // 首次渲染自动请求
       }
     },
-    [params]
+    []
   );
   const { fetchData, loading, rdata, error } = useRequest(queryConfig);
-
+  console.log(rdata)
+  useEffect(() => {
+    fetchData({data:params})
+  }, [fetchData]);
   return (
     <div>
       <SearchForm
@@ -147,6 +153,7 @@ export default function (props) {
             current:1
           }
           setParams(newConfig);
+          fetchData({data:newConfig})
           // const locationPath = qs.stringify(conf);
           // //改变地址
           // props.history.push('?'+locationPath)
@@ -155,6 +162,15 @@ export default function (props) {
       {loading && <div>正在加载</div>}
       {error && <div>加载错误请重试</div>}
       <StuTable lists={rdata?.dataMain?.list ?? []} />
+      <Pager 
+      current={params.current}
+      pageSize={params.current}
+      panelNumber={5}
+      total={rdata?.dataMain?.pagination?.total}
+      onPageChange={()=>{
+
+      }}
+      />
     </div>
   );
 }
