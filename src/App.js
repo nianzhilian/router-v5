@@ -22,7 +22,7 @@ import "./app.css";
 function Nav(){
   return (
     <nav className="nav">
-      <NavLink to="/">首页</NavLink>
+      <NavLink exact to="/">首页</NavLink>
       <NavLink to="/news">新闻页</NavLink>
     </nav>
   )
@@ -39,9 +39,11 @@ function getConfigs(routes,url){
       console.log(baseUrl)
       // render 动态决定渲染什么
       return (
-          <Route key={i} path={baseUrl} render={
+          <Route key={i} {...rest} path={baseUrl} render={
             (values)=>{
-              return <Component {...rest} />
+              return <Component {...values} >
+                {getConfigs(rt.children,baseUrl)}
+              </Component>
             }
           }>
           </Route>

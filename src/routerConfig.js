@@ -11,12 +11,13 @@ function Home(){
 }
 
 function News(props){
+    console.log(props)
   return (
     <div>
         <nav className="nav">
-            <NavLink to="/news/">新闻首页</NavLink>
-            <NavLink to="/news/list">新闻列表</NavLink>
-            <NavLink to="/news/detail">新闻详情</NavLink>
+            <NavLink exact to="/news/">新闻首页</NavLink>
+            <NavLink exact to="/news/list">新闻列表</NavLink>
+            <NavLink exact to="/news/detail">新闻详情</NavLink>
         </nav>
       {
         props.children
