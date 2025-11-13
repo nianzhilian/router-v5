@@ -71,7 +71,7 @@ export default function App(){
   return (
     <Router>
       <Nav />
-      {/* 匹配顶级组件 */}
+      {/* 匹配网站的顶级页面 */}
       <RootRoute />
     </Router>
   )
