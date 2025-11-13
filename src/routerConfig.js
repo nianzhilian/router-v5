@@ -2,80 +2,41 @@
 import React from 'react'
 import { BrowserRouter as Router, Route,NavLink } from 'react-router-dom'
 
-function Home(){
-  return (
-    <div>
-      首页
-    </div>
-  )
+const load = (component)=>{
+    return React.lazy(()=>import(`./page/component1/${component}`))
 }
 
-function News(props){
-    console.log(props)
-  return (
-    <div>
-        <nav className="nav">
-            <NavLink exact to="/news/">新闻首页</NavLink>
-            <NavLink exact to="/news/list">新闻列表</NavLink>
-            <NavLink exact to="/news/detail">新闻详情</NavLink>
-        </nav>
-      {
-        props.children
-      }
-    </div>
-  )
-}
-
-function NewsHome(props){
-    console.log(props)
-    return (
-        <div>
-            这是新闻首页
-        </div>
-    )
-}
-
-function NewsList(){
-    return (
-        <div>
-            这是新闻列表
-        </div>
-    )
-}
-
-function NewDetail(){
-    return (
-        <div>
-            这是新闻详情页
-        </div>
-    )
-}
-
+// 改写成根据name去匹配路径
 const configs = [
     {
         path:'/news',
-        component:News,
+        component:load('News'),
+        name:'news',
         children:[
             {
                 path:'/',
-                component:NewsHome,
+                component:load('NewsHome'),
                 exact:true,
+                name:'newsHome'
             },
             {
                 path:'/list',
-                component:NewsList,
+                component:load('NewsList'),
                 exact:true,
+                name:'newsList'
             },
             {
                 path:'/detail',
-                component:NewDetail,
-                exact:true
+                component:load('NewDetail'),
+                exact:true,
+                name:'newsDetail'
             }
         ]
     },
     {
         path:'/',
-        component:Home,
+        component:load('Home'),
+        name:'home'
     }
 ]
 
