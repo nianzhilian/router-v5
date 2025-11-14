@@ -12,15 +12,49 @@ import RouterGuard from "./RouterGuard";
 //只运行一次模块不做任何的导入
 import "./app.css";
 
-//路由导航守卫
+//返回顶部三种实现方式
+//高阶组件方式 自定义hook方式 路由守卫方式
 
-function Home() {
+//使用高阶组件使滚动条复位
+function withScroll(Component){
+  return class extends React.Component{
+    constructor(props){
+      super(props)
+    }
+    componentDidMount(){
+      window.scrollTo({
+        top:0,
+        behavior:'smooth'
+      })
+    }
+    render(){
+      return (
+        <Component {...this.props} />
+      )
+    }
+  }
+}
+
+//使用自定义hook使滚动条复位
+function useScroll(pathname){
+  useEffect(() => {
+    window.scrollTo({
+        top:0,
+        behavior:'smooth'
+      })
+  }, [pathname]);
+}
+
+function Home(props) {
   return <div className="page home">这是首页</div>;
 }
 
-function Admin() {
+function Admin(props) {
   return <div className="page admin">这是登录页</div>;
 }
+
+// Home = withScroll(Home);
+// Admin = withScroll(Admin)
 
 function Nav() {
   return (
@@ -48,11 +82,18 @@ class App extends React.Component {
           console.log(`路由从${prevLocation.pathname}跳转到${newLocation.pathname},跳转方式：${ac},允许跳转`);
           cb(window.confirm(msg))
           //只阻塞一次后面不在阻塞
-          unblock();
+          //unblock();
         }} onPageChange={(prevLocation,newLocation,ac,unhistory) => {
-          console.log(`日志：路由从${prevLocation.pathname}跳转到${newLocation.pathname},跳转方式：${ac}`)
+          console.log(`日志2：路由从${prevLocation.pathname}跳转到${newLocation.pathname},跳转方式：${ac}`)
+
+          //路由变化 使滚动条复位
+          window.scrollTo({
+            top:0,
+            behavior:'smooth'
+          })
+
           //仅仅监听一次
-          unhistory();
+          //unhistory();
         }}>
           <div className="main">
             <Nav />
