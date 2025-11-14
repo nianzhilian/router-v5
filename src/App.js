@@ -6,101 +6,120 @@ import {
   NavLink,
   Redirect,
   withRouter,
+  useHistory
 } from "react-router-dom";
-import BatterLink from "./BatterLink";
-import configs from "./routerConfig";
+
 //只运行一次模块不做任何的导入
 import "./app.css";
 
-//路由动态配置
+//路由导航守卫
 
-// 首页    新闻
-//         新闻首页  新闻列表  新闻详情
+
+function Home(){
+  return (
+    <div className="page home">
+      这是首页
+    </div>
+  )
+}
+
+function Admin(){
+  return (
+    <div className="page admin">
+      这是登录页
+    </div>
+  )
+}
 
 function Nav(){
   return (
-    <nav className="nav">
-      <BatterLink exact to={{name:'home'}}>首页</BatterLink>
-      <BatterLink to={{name:'news'}}>新闻页</BatterLink>
-    </nav>
+    <div className="header">
+      <nav className="nav">
+        <NavLink to={{pathname:'/'}} exact>首页</NavLink>
+        <NavLink to={{pathname:'/login'}} exact>登录页</NavLink>
+      </nav>
+    </div>
   )
 }
 
-function getConfigs(routes,url){
-  if(!Array.isArray(routes)){
-    return null;
-  }
-  let purl = url || '';
-  const rs = routes.map((rt,i)=>{
-      let baseUrl = purl + rt.path;
-      const {name,component:Component,children,...rest} = rt;
-      console.log(baseUrl)
-      // render 动态决定渲染什么
-      return (
-          <Route key={i} {...rest} path={baseUrl} render={
-            (values)=>{
-              return <Component {...values} >
-                {getConfigs(rt.children,baseUrl)}
-              </Component>
-            }
-          }>
-          </Route>
-      )
-  })
-  console.log(rs)
-  return (
-    <Switch>
-      {
-        rs
-      }
-    </Switch>
-  );
-}
-
-function RootRoute(props){
-  return (
-    <>
-    {getConfigs(configs)}
-    </>
-  )
-}
-
-class ErrorBoundary extends React.Component{
-  state = {
-    hasError:false
-  }
-  //从错误信息中获取状态
-  static getDerivedStateFromError(){
-    return {
-      hasError:true
-    }
-  }
+class RouterGuard extends React.Component{
   constructor(props){
     super(props);
   }
-  componentDidCatch(error){
-    console.error(error)
+  componentDidMount(){
+    //添加路由跳转监听器
+    //返回的是取消监听的函数
+    // newLocation 将要跳转的location    POP移动指针  PUSH 新增条目
+    //只是做监听跳转 不做管理是否能够跳转的控制
+    this.unlisten = this.props.history.listen((newLocation,action)=>{
+      if(this.props.onPageChange){
+        this.props.onPageChange(this.props.location,newLocation,action);
+      }
+    })
+
+    //只能添加一个阻塞
+    //添加阻塞 是否能够跳转 返回一个取消阻塞的函数
+    //回调参数跟listen一样
+    this.unblock = this.props.history.block((newLocation,ac)=>{
+      console.log(newLocation,ac);
+      return '是否允许跳转';
+    })
+  }
+  componentWillUnmount(){
+    //取消监听
+    this.unlisten();
+    //取消阻塞
+    this.unblock();
   }
   render(){
-    if(this.state.hasError){
-      return (
-        <div>加载组件发生错误请重试</div>
-      )
-    }
-    return this.props.children
+    console.log(this.props)
+    return <>
+    {this.props.children}
+    </>
   }
 }
 
-export default function App(){
-  return (
-    <Router>
-      <Nav />
-      {/* 匹配网站的顶级页面 */}
-      <ErrorBoundary>
-        <React.Suspense fallback={<div style={{textAlign:'center',marginTop:'50px'}}>正在加载中请稍后</div>}>
-          <RootRoute />
-        </React.Suspense>
-      </ErrorBoundary>
-    </Router>
-  )
+RouterGuard = withRouter(RouterGuard);
+
+
+function Test(props){
+  let history = useHistory();
+  console.log(history)
+  return <>
+    <div>
+      张三李四
+    </div>
+  </>
 }
+
+class App extends React.Component{
+  constructor(props){
+    super(props);
+  }
+  render(){
+    return (
+      <>
+        <Router getUserConfirmation={(msg,cb)=>{
+          console.log(msg,cb)
+          cb(window.confirm(msg))
+        }}>
+          <RouterGuard onPageChange={(prevLocation,newLocation,action)=>{
+            console.log(`页面从${prevLocation.pathname}跳转到${newLocation.pathname},其行为:${action}`)
+          }}>
+            <div className="main">
+              <Nav />
+              <Switch>
+                <Route path="/login" component={Admin}></Route>
+                <Route path="/" component={Home}></Route>
+              </Switch>
+            </div>
+          </RouterGuard>
+        </Router>
+      </>
+      
+    )
+  }
+}
+
+export default App;
+

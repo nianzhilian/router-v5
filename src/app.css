@@ -3,13 +3,39 @@
     padding: 0;
 }
 .nav{
-    overflow: hidden;
-    height: 1%;
 }
 .nav a{
     display: inline-block;
     margin-right: 10px;
+    text-decoration: none;
 }
 .nav a.active{
-    color: red;
+    color:lightcoral
+}
+.main{
+    width: 400px;
+    margin: 0 auto;
+}
+
+.header{
+    background: lightblue;
+    line-height: 50px;
+    font-size: 1.2em;
+    text-align: center;
+    position: fixed;
+    height: 50px;
+    width: 400px;
+    top: 0;
+    left: 50%;
+    margin-left: -200px;
+}
+.page{
+    background: lightblue;
+    text-align: center;
+    height: 120vh;
+    margin-top: 50px;
+    line-height: 120vh;
+}
+.page.admin{
+    background: lightgreen;
 }
