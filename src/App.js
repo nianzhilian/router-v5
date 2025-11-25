@@ -8,6 +8,7 @@ import {
   withRouter,
   useHistory,
 } from "react-router-dom";
+import { TransitionGroup,CSSTransition } from "react-transition-group";
 import RouterGuard from "./RouterGuard";
 //只运行一次模块不做任何的导入
 import "./app.css";
@@ -46,11 +47,11 @@ function useScroll(pathname){
 }
 
 function Home(props) {
-  return <div className="page home">这是首页</div>;
+  return <div className="page  home">这是首页</div>;
 }
 
 function Admin(props) {
-  return <div className="page admin">这是登录页</div>;
+  return <div className="page  admin">这是登录页</div>;
 }
 
 // Home = withScroll(Home);
@@ -70,6 +71,29 @@ function Nav() {
     </div>
   );
 }
+
+//使用TransitionGroup  包括住Switch路由器
+// 使用CSSTransition 包括住路由
+class Animated extends React.Component{
+  constructor(props){
+    super(props);
+  }
+  render(){
+    return (
+      <TransitionGroup className='transition-group'>
+        <CSSTransition key={this.props.location.pathname} timeout={300} classNames='css-transition' unmountOnExit>
+          {/* 这样写法 动画样式加载到switch上 没加载到div元素上 */}
+          <Switch location={this.props.location}>
+            <Route path="/login" component={Admin}></Route>
+            <Route path="/" component={Home}></Route>
+          </Switch>
+        </CSSTransition>
+      </TransitionGroup>
+    )
+  }
+}
+
+Animated = withRouter(Animated);
 
 class App extends React.Component {
   constructor(props) {
@@ -97,10 +121,7 @@ class App extends React.Component {
         }}>
           <div className="main">
             <Nav />
-            <Switch>
-              <Route path="/login" component={Admin}></Route>
-              <Route path="/" component={Home}></Route>
-            </Switch>
+            <Animated />
           </div>
         </RouterGuard>
       </>
