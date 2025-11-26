@@ -13,120 +13,96 @@ import RouterGuard from "./RouterGuard";
 //只运行一次模块不做任何的导入
 import "./app.css";
 
-//返回顶部三种实现方式
-//高阶组件方式 自定义hook方式 路由守卫方式
+//阻止路由跳转
 
-//使用高阶组件使滚动条复位
-function withScroll(Component){
-  return class extends React.Component{
-    constructor(props){
-      super(props)
+function Page1(){
+  return (
+    <div>
+      page1
+    </div>
+  )
+}
+
+class Prompt extends React.Component{
+  static defaultProps = {
+    when:false,
+    message:'有值是否允许跳转'
+  }
+  componentDidMount(){
+    console.log('组件挂载完毕')
+    this.handleBlock();
+  }
+  componentDidUpdate(){
+    this.handleBlock();
+  }
+  handleBlock(){
+    this.unBlock && this.unBlock()
+    if(this.props.when){
+      this.unBlock = this.props.history.block(this.props.message)
     }
-    componentDidMount(){
-      window.scrollTo({
-        top:0,
-        behavior:'smooth'
-      })
-    }
-    render(){
-      return (
-        <Component {...this.props} />
-      )
-    }
+  }
+  componentWillUnmount(){
+    console.log('组件将要卸载')
+    this.unBlock && this.unBlock();
+  }
+  render(){
+    return null;
   }
 }
 
-//使用自定义hook使滚动条复位
-function useScroll(pathname){
-  useEffect(() => {
-    window.scrollTo({
-        top:0,
-        behavior:'smooth'
-      })
-  }, [pathname]);
-}
+Prompt = withRouter(Prompt)
 
-function Home(props) {
-  return <div className="page  home">这是首页</div>;
-}
-
-function Admin(props) {
-  return <div className="page  admin">这是登录页</div>;
-}
-
-// Home = withScroll(Home);
-// Admin = withScroll(Admin)
-
-function Nav() {
-  return (
-    <div className="header">
-      <nav className="nav">
-        <NavLink to={{ pathname: "/" }} exact>
-          首页
-        </NavLink>
-        <NavLink to={{ pathname: "/login" }} exact>
-          登录页
-        </NavLink>
-      </nav>
-    </div>
-  );
-}
-
-//使用TransitionGroup  包括住Switch路由器
-// 使用CSSTransition 包括住路由
-class Animated extends React.Component{
+class Page2 extends React.Component{
+  state = {
+    val:''
+  }
   constructor(props){
     super(props);
   }
+  // handelBlock(val){
+  //   //有值添加阻塞
+  //   if(val){
+  //     this.unBlock = this.props.history.block('文档有值确认要进行切换吗')
+  //   }else{
+  //     this.unBlock && this.unBlock();
+  //   }
+  // }
+  // componentWillUnmount(){
+  //   this.unBlock && this.unBlock();
+  // }
   render(){
     return (
-      <TransitionGroup className='transition-group'>
-        <CSSTransition key={this.props.location.pathname} timeout={300} classNames='css-transition' unmountOnExit>
-          {/* 这样写法 动画样式加载到switch上 没加载到div元素上 */}
-          <Switch location={this.props.location}>
-            <Route path="/login" component={Admin}></Route>
-            <Route path="/" component={Home}></Route>
-          </Switch>
-        </CSSTransition>
-      </TransitionGroup>
+      <div>
+        <Prompt when={this.state.val!=''} />
+        <textarea value={this.state.val} onChange={(e)=>{
+          this.setState({
+            val:e.target.value
+          })
+          // this.handelBlock(e.target.value);
+        }}>
+
+        </textarea>
+      </div>
     )
   }
 }
 
-Animated = withRouter(Animated);
-
-class App extends React.Component {
-  constructor(props) {
-    super(props);
-  }
-  render() {
-    return (
-      <>
-        <RouterGuard onBeforeChange={(prevLocation,newLocation,ac,cb,unblock,msg) => {
-          console.log(`路由从${prevLocation.pathname}跳转到${newLocation.pathname},跳转方式：${ac},允许跳转`);
-          cb(window.confirm(msg))
-          //只阻塞一次后面不在阻塞
-          //unblock();
-        }} onPageChange={(prevLocation,newLocation,ac,unhistory) => {
-          console.log(`日志2：路由从${prevLocation.pathname}跳转到${newLocation.pathname},跳转方式：${ac}`)
-
-          //路由变化 使滚动条复位
-          window.scrollTo({
-            top:0,
-            behavior:'smooth'
-          })
-
-          //仅仅监听一次
-          //unhistory();
-        }}>
-          <div className="main">
-            <Nav />
-            <Animated />
-          </div>
-        </RouterGuard>
-      </>
-    );
-  }
+function App(){
+  return (
+    <Router getUserConfirmation={(msg,cb)=>{
+      cb(window.confirm(msg))
+    }}>
+      <nav>
+        <NavLink to='/page1'>首页</NavLink>
+        <NavLink to='/page2'>详情页</NavLink>
+      </nav>
+      {/* 5.x 按照组件的构造函数和类组件本身 去传 只有匹配到时才进行实例化的操作 */}
+      {/* render 和 children 返回的都是jsx元素 */}
+      {/* 6.x 只有一个element 属性 接收到的是 jsx元素 提前进行实例化，但是路由匹配不到时 不会渲染 */}
+      <Route path='/page1' component={Page1}></Route>
+      <Route path='/page2' component={Page2}></Route>
+    </Router>
+  )
 }
 
 export default App;
