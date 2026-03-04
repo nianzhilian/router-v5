@@ -47,6 +47,7 @@ class RouterGuard extends React.Component{
     super(props);
   }
   componentDidMount(){
+    console.log(this.props)
     //添加路由跳转监听器
     //返回的是取消监听的函数
     // newLocation 将要跳转的location    POP移动指针  PUSH 新增条目
